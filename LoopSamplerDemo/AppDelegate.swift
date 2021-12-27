@@ -12,8 +12,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 
+    func loadSamples() {
+        _ = LoopSampler.shared.ignite()
+        // Do any additional setup after loading the view.
+        if let allUrls = Bundle.main.urls(forResourcesWithExtension: "mp3", subdirectory: nil) {
+            allUrls.forEach({ url in
+                do {
+                   print("URL \(url)")
+                    _  = LoopSampler.shared.registerSample(sampleURL: url)
+                }
+            })
+        }
+    }
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        loadSamples()
         return true
     }
 

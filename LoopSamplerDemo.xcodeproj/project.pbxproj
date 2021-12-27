@@ -13,6 +13,8 @@
 		2C971D172778CB06004B4FB0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C971D152778CB06004B4FB0 /* Main.storyboard */; };
 		2C971D192778CB0B004B4FB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C971D182778CB0B004B4FB0 /* Assets.xcassets */; };
 		2C971D1C2778CB0B004B4FB0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C971D1A2778CB0B004B4FB0 /* LaunchScreen.storyboard */; };
+		2C971D28277954B4004B4FB0 /* Air_Horn.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2C971D27277954B4004B4FB0 /* Air_Horn.mp3 */; };
+		2C971D2B27797292004B4FB0 /* LoopSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C971D242778CB6E004B4FB0 /* LoopSampler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		2C971D182778CB0B004B4FB0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C971D1B2778CB0B004B4FB0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2C971D1D2778CB0B004B4FB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2C971D242778CB6E004B4FB0 /* LoopSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSampler.swift; sourceTree = "<group>"; };
+		2C971D27277954B4004B4FB0 /* Air_Horn.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Air_Horn.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +60,8 @@
 		2C971D0E2778CB06004B4FB0 /* LoopSamplerDemo */ = {
 			isa = PBXGroup;
 			children = (
+				2C971D26277953B0004B4FB0 /* Sounds */,
+				2C971D232778CB54004B4FB0 /* LoopSampler */,
 				2C971D0F2778CB06004B4FB0 /* AppDelegate.swift */,
 				2C971D112778CB06004B4FB0 /* SceneDelegate.swift */,
 				2C971D132778CB06004B4FB0 /* ViewController.swift */,
@@ -66,6 +72,23 @@
 			);
 			path = LoopSamplerDemo;
 			sourceTree = "<group>";
+		};
+		2C971D232778CB54004B4FB0 /* LoopSampler */ = {
+			isa = PBXGroup;
+			children = (
+				2C971D242778CB6E004B4FB0 /* LoopSampler.swift */,
+			);
+			path = LoopSampler;
+			sourceTree = "<group>";
+		};
+		2C971D26277953B0004B4FB0 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				2C971D27277954B4004B4FB0 /* Air_Horn.mp3 */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 /* End PBXGroup section */
 
@@ -125,6 +148,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C971D28277954B4004B4FB0 /* Air_Horn.mp3 in Resources */,
 				2C971D1C2778CB0B004B4FB0 /* LaunchScreen.storyboard in Resources */,
 				2C971D192778CB0B004B4FB0 /* Assets.xcassets in Resources */,
 				2C971D172778CB06004B4FB0 /* Main.storyboard in Resources */,
@@ -140,6 +164,7 @@
 			files = (
 				2C971D142778CB06004B4FB0 /* ViewController.swift in Sources */,
 				2C971D102778CB06004B4FB0 /* AppDelegate.swift in Sources */,
+				2C971D2B27797292004B4FB0 /* LoopSampler.swift in Sources */,
 				2C971D122778CB06004B4FB0 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
