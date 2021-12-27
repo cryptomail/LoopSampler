@@ -87,6 +87,10 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     var simulatedClockTimer:Timer!
     var currentRecordedTime:CMTime!
     var clockView:ClockView!
+    var recordButton:UIButton!
+    var playButton:UIButton!
+    var stopButton:UIButton!
+    
     
     func addMediaDurationTimer() {
         mediaLoopTimer = Timer.scheduledTimer(timeInterval: TimeInterval(durationSlider.value), target: self, selector: #selector(simulatedMediatimerFunction), userInfo: nil, repeats: false)
@@ -143,17 +147,69 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         durationLabel.text = "Loop Length: \(durationSlider.value) seconds"
     }
 
+    func addRecordPlayStopButtons() {
+        let recordImage:UIImage = UIImage(systemName: "record.circle")!
+        let playImage:UIImage = UIImage(systemName: "play")!
+        let stopImage:UIImage = UIImage(systemName: "stop")!
+        recordButton = UIButton()
+        playButton = UIButton()
+        stopButton = UIButton()
+        
+        recordButton.translatesAutoresizingMaskIntoConstraints = false
+        playButton.translatesAutoresizingMaskIntoConstraints = false
+        stopButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        recordButton.setImage(recordImage, for: .normal)
+        playButton.setImage(playImage, for: .normal)
+        stopButton.setImage(stopImage, for: .normal)
+        
+        view.addSubview(recordButton)
+        view.addSubview(playButton)
+        view.addSubview(stopButton)
+        
+        recordButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
+        recordButton.topAnchor.constraint(equalTo: durationSlider.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        recordButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3.0).isActive = true
+        recordButton.heightAnchor.constraint(equalToConstant: CGFloat(HEIGHT_POINTS)).isActive = true
+        recordButton.addTarget(self, action: #selector(onRecordButtonPressed(sender:)), for: .touchUpInside)
+        
+        playButton.leftAnchor.constraint(equalTo: recordButton.safeAreaLayoutGuide.rightAnchor).isActive = true
+        playButton.topAnchor.constraint(equalTo: durationSlider.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        playButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3.0).isActive = true
+        playButton.heightAnchor.constraint(equalToConstant: CGFloat(HEIGHT_POINTS)).isActive = true
+        playButton.addTarget(self, action: #selector(onPlayButtonPressed(sender:)), for: .touchUpInside)
+        
+        stopButton.leftAnchor.constraint(equalTo: playButton.safeAreaLayoutGuide.rightAnchor).isActive = true
+        stopButton.topAnchor.constraint(equalTo: durationSlider.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        stopButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3.0).isActive = true
+        stopButton.heightAnchor.constraint(equalToConstant: CGFloat(HEIGHT_POINTS)).isActive = true
+        stopButton.addTarget(self, action: #selector(onStopButtonPressed(sender:)), for: .touchUpInside)
+    }
+    
+    @objc
+    func onRecordButtonPressed(sender:Any) {
+        
+    }
+    
+    @objc
+    func onPlayButtonPressed(sender:Any) {
+        
+    }
+    @objc
+    func onStopButtonPressed(sender:Any) {
+        
+    }
+    
     func addClockView() {
         clockView = ClockView(pq: self)
         clockView.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(clockView)
-        clockView.topAnchor.constraint(equalTo: durationSlider.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        clockView.topAnchor.constraint(equalTo: recordButton.safeAreaLayoutGuide.bottomAnchor).isActive = true
         clockView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
         clockView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor).isActive = true
         clockView.heightAnchor.constraint(equalToConstant: CGFloat(TRANSPORT_VIEW_HEIGHT_POINTS)).isActive = true
         clockView.backgroundColor = .black
-    
     }
     func stopLooper() {
         LoopSampler.shared.stopAllLoops()
@@ -169,6 +225,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         addSampleButtons()
         addDurationText()
         addDurationSlider()
+        addRecordPlayStopButtons()
         addClockView()
         addSimulatedClockTimer()
     }
@@ -184,9 +241,8 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         self.stopLooper()
     }
     @objc func simulatedClocktimerFunction() {
-
         if LoopSampler.shared.isPlayingOrRecording() {
-            
+            clockView.setNeedsDisplay()
         }
     }
 }
