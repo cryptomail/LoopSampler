@@ -68,6 +68,13 @@ class Loop : NSObject {
         return LoopSampler.shared.engine
     }
     
+    func isPlaying() -> Bool {
+        return playing
+    }
+    
+    func isRecording() -> Bool {
+        return recording
+    }
     /// _attachVoicesToMainEngine
     /// Internal method to wire up:
     func _attachVoicesToMainEngine() {
@@ -173,14 +180,17 @@ class Loop : NSObject {
         vox!.play()
     }
     func stop() {
+        for v in voices {
+            v?.stop()
+        }
         playing = false
+        recording = false
     }
     func record() {
         stop()
         disarm()
         removeScheduledEvents()
         arm()
-        play()
         recording = true
     }
     func disarm() {
@@ -222,6 +232,7 @@ public class LoopSampler {
    
     init() {
         samples = [Int:Sample]()
+        loops = [Int:Loop]()
         _setupAudioSession()
     }
     
@@ -242,6 +253,14 @@ public class LoopSampler {
         return true
     }
     
+    public func isPlayingOrRecording()->Bool {
+        for l in loops {
+            if l.value.isPlaying() || l.value.isRecording() {
+                return true
+            }
+        }
+        return false
+    }
     func _getSample(sampleId:Int) ->Sample? {
         let i = samples.firstIndex(where: {(id, l) in return sampleId == id})
         if i == nil {
@@ -297,7 +316,12 @@ public class LoopSampler {
     }
     
     public func stopAllLoops() {
-        
+        if loops == nil {
+            return
+        }
+        for l in loops.values {
+            l.stop()
+        }
     }
     
     public func shortNameToSampleId(shortName:String) -> Int? {
