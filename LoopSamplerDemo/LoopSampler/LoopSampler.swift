@@ -54,7 +54,6 @@ class Loop : NSObject {
         self.id = id
         self.armed = false
         self.playing = false
-        self.recording = false
         voices = [AVAudioPlayerNode]()
         for _ in (0...voiceCount) {
             let avPlayerNode = AVAudioPlayerNode()
@@ -75,7 +74,7 @@ class Loop : NSObject {
     }
     
     func isRecording() -> Bool {
-        return recording
+        return armed && playing
     }
     /// _attachVoicesToMainEngine
     /// Internal method to wire up:
@@ -136,6 +135,7 @@ class Loop : NSObject {
     }
     func play() {
         playing = true
+        print ("Loop \(self.id!) \(playing)")
     }
     
     /// playsSampleImmediate:
@@ -187,6 +187,8 @@ class Loop : NSObject {
         }
         playing = false
         recording = false
+        
+        print ("Loop id \(self.id) stopped")
     }
     func record() {
         stop()
@@ -202,8 +204,6 @@ class Loop : NSObject {
         disarm()
         armed = true
     }
-    
-    
 }
 
 
@@ -334,7 +334,14 @@ public class LoopSampler {
     }
     
     public func playLoop(loopId:Int) {
-        
+        if loops == nil {
+            return
+        }
+        let idx = loops.firstIndex(where: {(id, value) in return loopId == id})
+        if idx == nil {
+            return
+        }
+        loops[loopId]?.play()
     }
     
     public func armLoop(loopId:Int) {
@@ -360,7 +367,13 @@ public class LoopSampler {
     }
     
     public func playAllLoops() {
+        if loops == nil {
+            return
+        }
         stopAllLoops()
+        for l in loops {
+            l.value.play()
+        }
     }
     
     public func stopAllLoops() {

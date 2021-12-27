@@ -91,7 +91,6 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     var durationLabel:UILabel!
     var mediaLoopTimer:Timer!
     var mediaTimerStarted:CFTimeInterval!
-    var mediaTimerFinished:CMTime!
     var simulatedClockTimer:Timer!
     var currentRecordedTime:CMTime!
     var clockView:ClockView!
@@ -112,6 +111,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         
     }
     func addMediaDurationTimer() {
+        removeMediaDurationTimer()
         mediaLoopTimer = Timer.scheduledTimer(timeInterval: TimeInterval(durationSlider.value), target: self, selector: #selector(simulatedMediatimerFunction), userInfo: nil, repeats: false)
         self.mediaTimerStarted = CACurrentMediaTime()
     }
@@ -213,8 +213,9 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
             return
         }
         addMediaDurationTimer()
-        LoopSampler.shared.playAllLoops()
+        print ("Play pushed at \(mediaTimerStarted)")
         LoopSampler.shared.armLoop(loopId: loopId!)
+        LoopSampler.shared.playAllLoops()
     }
     
     @objc
@@ -240,6 +241,8 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         clockView.backgroundColor = .black
     }
     func stopLooper() {
+        
+        print ("Recording stopped at \(CACurrentMediaTime())")
         removeMediaDurationTimer()
         LoopSampler.shared.stopAllLoops()
     }
@@ -261,8 +264,11 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     }
 
     func slapperHit(slapperName:String) {
-        
-        LoopSampler.shared.playSampleImmediate(sampleName: slapperName)
+        if LoopSampler.shared.isPlayingOrRecording() {
+            
+        } else {
+            LoopSampler.shared.playSampleImmediate(sampleName: slapperName)
+        }
     }
     @objc
     func handleSlap(sender: UITapGestureRecognizer) {
@@ -274,11 +280,10 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         }
     }
     @objc func simulatedMediatimerFunction() {
-        mediaTimerFinished = getTime()
         self.stopLooper()
     }
     @objc func simulatedClocktimerFunction() {
-        if true || LoopSampler.shared.isPlayingOrRecording() {
+        if LoopSampler.shared.isPlayingOrRecording() {
             clockView.setNeedsDisplay()
         }
     }
