@@ -66,7 +66,15 @@ class ClockView : UIView {
 class ViewController: UIViewController, TimeQuery, PercentageQuery {
     
     func getPercentage() -> Double {
-        return 0
+        if mediaTimerStarted == nil {
+            return 0
+        }
+        let ending  = mediaTimerStarted + Double(durationSlider.value)
+        let left = ending - CACurrentMediaTime()
+        if left < 0 {
+            return 0.99
+        }
+        return (Double(durationSlider.value) - left) / Double(durationSlider.value)
     }
     
     
@@ -82,7 +90,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     var durationSlider:UISlider!
     var durationLabel:UILabel!
     var mediaLoopTimer:Timer!
-    var mediaTimerStarted:CMTime!
+    var mediaTimerStarted:CFTimeInterval!
     var mediaTimerFinished:CMTime!
     var simulatedClockTimer:Timer!
     var currentRecordedTime:CMTime!
@@ -90,11 +98,22 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     var recordButton:UIButton!
     var playButton:UIButton!
     var stopButton:UIButton!
+    var loopId:Int?
     
-    
+    func removeMediaDurationTimer() {
+        if mediaLoopTimer != nil {
+            mediaLoopTimer.invalidate()
+            mediaLoopTimer = nil
+        }
+        mediaTimerStarted = nil
+        if clockView != nil {
+            clockView.setNeedsDisplay()
+        }
+        
+    }
     func addMediaDurationTimer() {
         mediaLoopTimer = Timer.scheduledTimer(timeInterval: TimeInterval(durationSlider.value), target: self, selector: #selector(simulatedMediatimerFunction), userInfo: nil, repeats: false)
-        self.mediaTimerStarted = CMTime(seconds: machAbsoluteToSeconds(), preferredTimescale: 1)
+        self.mediaTimerStarted = CACurrentMediaTime()
     }
     func addSimulatedClockTimer() {
         simulatedClockTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(simulatedClocktimerFunction), userInfo: nil, repeats: true)
@@ -188,16 +207,25 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     
     @objc
     func onRecordButtonPressed(sender:Any) {
-        
+        LoopSampler.shared.deleteAllLoops()
+        loopId = LoopSampler.shared.createLoop()
+        if loopId == nil {
+            return
+        }
+        addMediaDurationTimer()
+        LoopSampler.shared.playAllLoops()
+        LoopSampler.shared.armLoop(loopId: loopId!)
     }
     
     @objc
     func onPlayButtonPressed(sender:Any) {
-        
+        addMediaDurationTimer()
+        LoopSampler.shared.playAllLoops()
     }
     @objc
     func onStopButtonPressed(sender:Any) {
-        
+        LoopSampler.shared.stopAllLoops()
+
     }
     
     func addClockView() {
@@ -212,10 +240,12 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         clockView.backgroundColor = .black
     }
     func stopLooper() {
+        removeMediaDurationTimer()
         LoopSampler.shared.stopAllLoops()
     }
     
     @objc func onSliderValChanged(slider: UISlider, event: UIEvent) {
+        stopLooper()
         self.durationLabel.text = "Loop Length: \(slider.value) seconds"
     }
     
@@ -230,10 +260,17 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         addSimulatedClockTimer()
     }
 
+    func slapperHit(slapperName:String) {
+        
+        LoopSampler.shared.playSampleImmediate(sampleName: slapperName)
+    }
     @objc
     func handleSlap(sender: UITapGestureRecognizer) {
         DispatchQueue.main.async {
-            LoopSampler.shared.playSampleImmediate(sampleName: "Air_Horn.mp3")
+            [weak self] in
+            if let self = self {
+                self.slapperHit(slapperName: "Air_Horn.mp3")
+            }
         }
     }
     @objc func simulatedMediatimerFunction() {
@@ -241,7 +278,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         self.stopLooper()
     }
     @objc func simulatedClocktimerFunction() {
-        if LoopSampler.shared.isPlayingOrRecording() {
+        if true || LoopSampler.shared.isPlayingOrRecording() {
             clockView.setNeedsDisplay()
         }
     }

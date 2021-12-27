@@ -11,6 +11,7 @@ import AVFoundation
 let DEFAULT_LOOP_VOICES = 10
 let BUFFER_DURATION = 0.005
 let DEFAULT_VOLUME = 0.8
+let MAX_LOOPS = 3
 
  class Sample : NSObject {
     var id:Int!
@@ -53,6 +54,7 @@ class Loop : NSObject {
         self.id = id
         self.armed = false
         self.playing = false
+        self.recording = false
         voices = [AVAudioPlayerNode]()
         for _ in (0...voiceCount) {
             let avPlayerNode = AVAudioPlayerNode()
@@ -292,10 +294,42 @@ public class LoopSampler {
     }
     
     public func createLoop() ->Int?{
-        return nil
+        if loops == nil {
+            loops = [Int:Loop]()
+        }
+        if loops.count >= MAX_LOOPS {
+            return nil
+        }
+        let loop = Loop(id:loopIDCount)
+        loops[loopIDCount] = loop
+        loopIDCount += 1
+        return loop.id
     }
     
+    public func deleteAllLoops() {
+        if loops == nil {
+            return
+        }
+        stopAllLoops()
+        for l in loops {
+            l.value.stop()
+        }
+        let keys = loops.keys
+        for k in keys {
+            deleteLoop(loopId: k)
+        }
+       
+    }
     public func deleteLoop(loopId:Int) {
+        if loops == nil {
+            return
+        }
+        let idx = loops.firstIndex(where: {(id, value) in return loopId == id})
+        if idx == nil {
+            return
+        }
+        loops[loopId]?.stop()
+        loops.removeValue(forKey: loopId)
         return
     }
     
@@ -304,15 +338,29 @@ public class LoopSampler {
     }
     
     public func armLoop(loopId:Int) {
-        
+        if loops == nil {
+            return
+        }
+        let idx = loops.firstIndex(where: {(id, value) in return loopId == id})
+        if idx == nil {
+            return
+        }
+        loops[loopId]?.arm()
     }
     
     public func disarmLoop(loopId:Int) {
-        
+        if loops == nil {
+            return
+        }
+        let idx = loops.firstIndex(where: {(id, value) in return loopId == id})
+        if idx == nil {
+            return
+        }
+        loops[loopId]?.disarm()
     }
     
     public func playAllLoops() {
-        
+        stopAllLoops()
     }
     
     public func stopAllLoops() {
@@ -356,7 +404,6 @@ public class LoopSampler {
         _stopAllLoopsPlayingSample(sampleId: sampleId)
         _clearAllLoopsReferencingSample(sampleId: sampleId)
         samples.removeValue(forKey: sampleId)
-        samples.remove(at: s!)
         return
     }
     
