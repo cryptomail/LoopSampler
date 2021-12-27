@@ -225,8 +225,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     }
     @objc
     func onStopButtonPressed(sender:Any) {
-        LoopSampler.shared.stopAllLoops()
-
+        stopLooper()
     }
     
     func addClockView() {
@@ -241,8 +240,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         clockView.backgroundColor = .black
     }
     func stopLooper() {
-        
-        print ("Recording stopped at \(CACurrentMediaTime())")
+        print ("Tape stopped at \(CACurrentMediaTime())")
         removeMediaDurationTimer()
         LoopSampler.shared.stopAllLoops()
     }
