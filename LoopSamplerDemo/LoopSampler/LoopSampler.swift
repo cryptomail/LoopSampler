@@ -37,6 +37,12 @@ let MAX_LOOPS = 3
     }
 }
 
+class LoopEvent : NSObject {
+    var sampleId:Int?
+    var timeOn:Double?
+    var timeOff:Double?
+    
+}
 class Loop : NSObject {
 
     var id:Int!
@@ -47,7 +53,7 @@ class Loop : NSObject {
     var playing:Bool!
     var recording:Bool!
     
-    var scheduledEvents:[Any?]!
+    var scheduledEvents:[LoopEvent]!
     
     init(id:Int, voiceCount:Int = DEFAULT_LOOP_VOICES) {
         super.init()
@@ -59,7 +65,7 @@ class Loop : NSObject {
             let avPlayerNode = AVAudioPlayerNode()
             voices.append(avPlayerNode)
         }
-        self.scheduledEvents = [Any?]()
+        self.scheduledEvents = [LoopEvent]()
         self.voiceSamplePool = [Int:Int]()
         
         _attachVoicesToMainEngine()
@@ -138,6 +144,7 @@ class Loop : NSObject {
         print ("Loop \(self.id!) \(playing)")
     }
     
+    
     /// playsSampleImmediate:
     /// Plays the sample right away.  If it's the same sample, then it gets cut off because it employs the same player node that is currently affine to the sample.
     /// This behaviour could change by changing the locking mechanism.  If you retruned a node per request that was based on availability then it would be polyphonic on the same sample id.
@@ -156,7 +163,17 @@ class Loop : NSObject {
         let frameLength = sample!.audioFile!.length
         let framesToPlay =  AVAudioFrameCount(frameLength)
         vox!.prepare(withFrameCount: framesToPlay)
+        
+        var event:LoopEvent?
+        
+        if isRecording() {
+            event = LoopEvent()
+            event!.sampleId = sampleId
+            event!.timeOn = LoopSampler.shared.timeQuery!.getTime()
+        }
+       
         vox!.stop()
+       
         vox!.prepare(withFrameCount: framesToPlay)
         vox!.scheduleSegment( sample!.audioFile!,
                                     startingFrame: 0,
@@ -165,7 +182,9 @@ class Loop : NSObject {
                                     completionCallbackType: .dataPlayedBack)
                 { cbType in
                     DispatchQueue.main.async { [weak self] in
-                       
+                        if self != nil && self!.scheduledEvents != nil  && self!.scheduledEvents.count > 0 {
+                            self!.scheduledEvents.last!.timeOff = LoopSampler.shared.timeQuery!.getTime()
+                        }
                         self?._unlockVoiceForSamplePlay(sampleId: sampleId)
                     }
                 }
@@ -179,6 +198,10 @@ class Loop : NSObject {
          Don't touch the node yet.
          */
         if vox!.isPlaying || !engine()!.isRunning { return }
+        
+        if isRecording() {
+            scheduledEvents.append(event!)
+        }
         vox!.play()
     }
     func stop() {
@@ -189,13 +212,6 @@ class Loop : NSObject {
         recording = false
         
         print ("Loop id \(self.id) stopped")
-    }
-    func record() {
-        stop()
-        disarm()
-        removeScheduledEvents()
-        arm()
-        recording = true
     }
     func disarm() {
         armed = false
@@ -216,7 +232,7 @@ public class LoopSampler {
     var immediateLoop:Loop?
     var samples:[Int:Sample]!
     var loops:[Int:Loop]!
-    
+    var timeQuery:TimeQuery?
     var loopIDCount = 0
     var sampleIDCount = 0
     
@@ -238,6 +254,17 @@ public class LoopSampler {
         _setupAudioSession()
     }
     
+    public func setTimeQuery(timeQuery:TimeQuery) {
+        self.timeQuery = timeQuery
+    }
+    
+    public func clearLoopEvents(loopId:Int) {
+        let theLoop  = _getLoop(loopId: loopId)
+        if theLoop == nil {
+            return
+        }
+        theLoop!.removeScheduledEvents()
+    }
     public func ignite() ->Bool {
         if immediateLoop == nil {
             immediateLoop = Loop(id: -1)

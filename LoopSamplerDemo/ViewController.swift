@@ -15,8 +15,8 @@ let HEIGHT_POINTS = 100
 let TRANSPORT_VIEW_HEIGHT_POINTS = 50
 let CLOCK_RECT_WIDTH = 5
 
-protocol TimeQuery {
-    func getTime() -> CMTime
+public protocol TimeQuery {
+    func getTime() -> Double
 }
 
 protocol PercentageQuery {
@@ -81,11 +81,10 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
     /// Very poor example here, but we're representing the clock :)
     ///   It will return the zero based offset from beginninng of marked start of loop
     ///   Obviously the resolution is "not good" but you could get it from say another Audio Visual source with a much better clock.
-    func getTime() -> CMTime {
-        return CMTime(seconds: machAbsoluteToSeconds(), preferredTimescale: 1)
+    func getTime() -> Double {
+        return  CACurrentMediaTime() - mediaTimerStarted
     }
     
-
     var sampleButton:UIButton!
     var durationSlider:UISlider!
     var durationLabel:UILabel!
@@ -104,7 +103,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
             mediaLoopTimer.invalidate()
             mediaLoopTimer = nil
         }
-        mediaTimerStarted = nil
+        
         if clockView != nil {
             clockView.setNeedsDisplay()
         }
@@ -215,6 +214,7 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         addMediaDurationTimer()
         print ("Play pushed at \(mediaTimerStarted)")
         LoopSampler.shared.armLoop(loopId: loopId!)
+        LoopSampler.shared.clearLoopEvents(loopId: loopId!)
         LoopSampler.shared.playAllLoops()
     }
     
@@ -259,11 +259,12 @@ class ViewController: UIViewController, TimeQuery, PercentageQuery {
         addRecordPlayStopButtons()
         addClockView()
         addSimulatedClockTimer()
+        LoopSampler.shared.setTimeQuery(timeQuery: self)
     }
 
     func slapperHit(slapperName:String) {
         if LoopSampler.shared.isPlayingOrRecording() {
-            
+            LoopSampler.shared.playSampleImmediate(sampleName: slapperName, loopId: loopId)
         } else {
             LoopSampler.shared.playSampleImmediate(sampleName: slapperName)
         }
