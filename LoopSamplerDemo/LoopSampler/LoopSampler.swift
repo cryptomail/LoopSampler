@@ -243,9 +243,6 @@ class Loop : NSObject {
         let vox = voices[idx!]
        
         let frameLength = sample!.audioFile!.length
-        let framesToPlay =  AVAudioFrameCount(frameLength)
-        vox!.prepare(withFrameCount: framesToPlay)
-    
         let ht = createStartTime(shortStartDelay: atTimeFromNow, player: vox!, file: sample!.audioFile!)
         
         let totalDuration = sample!.audioFile!.duration
