@@ -13,6 +13,18 @@ let BUFFER_DURATION = 0.005
 let DEFAULT_VOLUME = 0.8
 let MAX_LOOPS = 3
 
+func createStartTime(shortStartDelay:Double, player:AVAudioPlayerNode,  file:AVAudioFile) -> AVAudioTime? {
+
+    var time:AVAudioTime?
+    
+    var sampleTime = AVAudioFramePosition(shortStartDelay * file.processingFormat.sampleRate )
+
+    time = AVAudioTime(hostTime: mach_absolute_time(), sampleTime: sampleTime, atRate: file.processingFormat.sampleRate)
+    
+    return time
+
+}
+
  class Sample : NSObject {
     var id:Int!
     var url:URL!
@@ -142,6 +154,12 @@ class Loop : NSObject {
     func play() {
         playing = true
         print ("Loop \(self.id!) \(playing)")
+        for e in scheduledEvents {
+            if e.timeOff == nil {
+                e.timeOff = e.timeOn! + 1
+            }
+            playSampleAtTime(sampleId: e.sampleId!, atTimeFromNow: e.timeOn!, duration: e.timeOff! - e.timeOn!)
+        }
     }
     
     
@@ -183,7 +201,14 @@ class Loop : NSObject {
                 { cbType in
                     DispatchQueue.main.async { [weak self] in
                         if self != nil && self!.scheduledEvents != nil  && self!.scheduledEvents.count > 0 {
-                            self!.scheduledEvents.last!.timeOff = LoopSampler.shared.timeQuery!.getTime()
+                            var idx = self!.scheduledEvents.firstIndex(where: {e in e.timeOff == nil})
+                            if idx != nil {
+                                let closing_event  = self!.scheduledEvents[idx!]
+                                closing_event.timeOff = LoopSampler.shared.timeQuery!.getTime()
+                                let duration = closing_event.timeOff! -  closing_event.timeOn!
+                                print ("Event id: \(self!.scheduledEvents.count) duration: \(duration)")
+                            }
+                            
                         }
                         self?._unlockVoiceForSamplePlay(sampleId: sampleId)
                     }
@@ -202,6 +227,64 @@ class Loop : NSObject {
         if isRecording() {
             scheduledEvents.append(event!)
         }
+        vox!.play()
+    }
+    
+    func playSampleAtTime(sampleId:Int, atTimeFromNow:Double, duration:Double) {
+        let sample = LoopSampler.shared._getSample(sampleId: sampleId)
+        if sample == nil {
+            return
+        }
+        
+        let idx = _lockVoiceForSamplePlay(sampleId: sample!.id)
+        if idx == nil {
+            return
+        }
+        let vox = voices[idx!]
+       
+        let frameLength = sample!.audioFile!.length
+        let framesToPlay =  AVAudioFrameCount(frameLength)
+        vox!.prepare(withFrameCount: framesToPlay)
+    
+        let ht = createStartTime(shortStartDelay: atTimeFromNow, player: vox!, file: sample!.audioFile!)
+        
+        let totalDuration = sample!.audioFile!.duration
+        let theFrameCount = (duration / totalDuration) * Double(frameLength)
+        
+        let nFrames = Int64(theFrameCount)
+        /*
+         const float kStartDelayTime = 0.5; // sec
+            AVAudioFormat *outputFormat = [_player outputFormatForBus:0];
+            AVAudioFramePosition startSampleTime = _player.lastRenderTime.sampleTime + kStartDelayTime * outputFormat.sampleRate;
+            AVAudioTime *startTime = [AVAudioTime timeWithSampleTime:startSampleTime atRate:outputFormat.sampleRate];
+
+         */
+       
+        
+        vox!.prepare(withFrameCount: AVAudioFrameCount(nFrames))
+        vox!.scheduleSegment( sample!.audioFile!,
+                                    startingFrame: 0,
+                              frameCount: AVAudioFrameCount(nFrames),
+                                    at: ht,
+                                    completionCallbackType: .dataPlayedBack)
+                { cbType in
+                    DispatchQueue.main.async { [weak self] in
+                        
+                        print ("cound stopped")
+                        self?._unlockVoiceForSamplePlay(sampleId: sampleId)
+                    }
+                }
+        /*
+         If for whatever reason the damn engine light came on....and stopped
+         Start it up again.  It happens during the course of playing or anything!
+         */
+        _ = LoopSampler.shared.ignite()
+        /*
+         If the node is busy or the engine isn't running well...get out of here.
+         Don't touch the node yet.
+         */
+        if vox!.isPlaying || !engine()!.isRunning { return }
+        
         vox!.play()
     }
     func stop() {
@@ -465,4 +548,14 @@ public class LoopSampler {
         }
         return ret
     }
+}
+
+extension AVAudioFile{
+
+    var duration: TimeInterval{
+        let sampleRateSong = Double(processingFormat.sampleRate)
+        let lengthSongSeconds = Double(length) / sampleRateSong
+        return lengthSongSeconds
+    }
+
 }
