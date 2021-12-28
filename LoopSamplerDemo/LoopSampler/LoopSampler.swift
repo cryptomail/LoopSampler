@@ -269,8 +269,6 @@ class Loop : NSObject {
                                     completionCallbackType: .dataPlayedBack)
                 { cbType in
                     DispatchQueue.main.async { [weak self] in
-                        
-                        print ("cound stopped")
                         self?._unlockVoiceForSamplePlay(sampleId: sampleId)
                     }
                 }
