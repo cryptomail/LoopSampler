@@ -252,14 +252,6 @@ class Loop : NSObject {
         let theFrameCount = (duration / totalDuration) * Double(frameLength)
         
         let nFrames = Int64(theFrameCount)
-        /*
-         const float kStartDelayTime = 0.5; // sec
-            AVAudioFormat *outputFormat = [_player outputFormatForBus:0];
-            AVAudioFramePosition startSampleTime = _player.lastRenderTime.sampleTime + kStartDelayTime * outputFormat.sampleRate;
-            AVAudioTime *startTime = [AVAudioTime timeWithSampleTime:startSampleTime atRate:outputFormat.sampleRate];
-
-         */
-       
         
         vox!.prepare(withFrameCount: AVAudioFrameCount(nFrames))
         vox!.scheduleSegment( sample!.audioFile!,
@@ -303,7 +295,6 @@ class Loop : NSObject {
     }
 }
 
-
 public class LoopSampler {
     
     static var shared = LoopSampler()
@@ -316,7 +307,6 @@ public class LoopSampler {
     var timeQuery:TimeQuery?
     var loopIDCount = 0
     var sampleIDCount = 0
-    
     
     private func _setupAudioSession() {
         
