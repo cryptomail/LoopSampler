@@ -15,6 +15,8 @@
 		2C971D1C2778CB0B004B4FB0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C971D1A2778CB0B004B4FB0 /* LaunchScreen.storyboard */; };
 		2C971D28277954B4004B4FB0 /* Air_Horn.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2C971D27277954B4004B4FB0 /* Air_Horn.mp3 */; };
 		2C971D2B27797292004B4FB0 /* LoopSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C971D242778CB6E004B4FB0 /* LoopSampler.swift */; };
+		2C99FE50277A9B6C006D17AF /* License in Resources */ = {isa = PBXBuildFile; fileRef = 2C99FE4F277A9B6C006D17AF /* License */; };
+		2C99FE52277A9B78006D17AF /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 2C99FE51277A9B77006D17AF /* Readme.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +30,8 @@
 		2C971D1D2778CB0B004B4FB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C971D242778CB6E004B4FB0 /* LoopSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSampler.swift; sourceTree = "<group>"; };
 		2C971D27277954B4004B4FB0 /* Air_Horn.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Air_Horn.mp3; sourceTree = "<group>"; };
+		2C99FE4F277A9B6C006D17AF /* License */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = License; sourceTree = "<group>"; };
+		2C99FE51277A9B77006D17AF /* Readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +48,8 @@
 		2C971D032778CB06004B4FB0 = {
 			isa = PBXGroup;
 			children = (
+				2C99FE51277A9B77006D17AF /* Readme.md */,
+				2C99FE4F277A9B6C006D17AF /* License */,
 				2C971D0E2778CB06004B4FB0 /* LoopSamplerDemo */,
 				2C971D0D2778CB06004B4FB0 /* Products */,
 			);
@@ -150,7 +156,9 @@
 			files = (
 				2C971D28277954B4004B4FB0 /* Air_Horn.mp3 in Resources */,
 				2C971D1C2778CB0B004B4FB0 /* LaunchScreen.storyboard in Resources */,
+				2C99FE52277A9B78006D17AF /* Readme.md in Resources */,
 				2C971D192778CB0B004B4FB0 /* Assets.xcassets in Resources */,
+				2C99FE50277A9B6C006D17AF /* License in Resources */,
 				2C971D172778CB06004B4FB0 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
